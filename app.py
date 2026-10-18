@@ -39,3 +39,13 @@ def get_course():
         "semester": "First Semester",
         "academic_year": "2026-2027"
     })
+
+@app.route('/hello')
+def get_hello():
+    name = request.args.get('name', 'Students')
+    return jsonify({
+        "message": f"Hello, {name}!"
+    })
+    
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5001, debug=True)
