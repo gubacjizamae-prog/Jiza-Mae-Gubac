@@ -12,20 +12,29 @@
             margin: 40px auto;
             padding: 20px;
             background-color: #f4f6f8;
+            color: #333;
         }
 
         h1, h2 {
-            color: #333333;
+            color: #243b55;
+        }
+
+        .section {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
         }
 
         button {
-            padding: 8px 14px;
-            margin: 5px;
+            padding: 10px 14px;
+            margin: 5px 0;
             cursor: pointer;
             background-color: #2563eb;
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 5px;
         }
 
         button:hover {
@@ -33,90 +42,131 @@
         }
 
         input {
-            padding: 8px;
-            border: 1px solid #cccccc;
-            border-radius: 4px;
-        }
-
-        #result {
-            margin-top: 20px;
             padding: 10px;
-            border: 1px solid #cccccc;
+            width: 90%;
+            max-width: 350px;
+            border: 1px solid #ccc;
             border-radius: 5px;
-            background-color: white;
         }
 
-        #greeting {
+        #result, #greeting, #customResult {
             margin-top: 15px;
-            padding: 10px;
-            color: #166534;
-            font-weight: bold;
-        }
-
-        hr {
-            margin: 25px 0;
-            border: 0;
-            border-top: 1px solid #dddddd;
+            padding: 12px;
+            background-color: #f8fafc;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow-wrap: anywhere;
         }
     </style>
 </head>
 
 <body>
     <h1>Student API Interface</h1>
+    <p>Welcome to my Flask API web interface.</p>
 
-    <button onclick="loadStudent()">Load Student Information</button>
+    <div class="section">
+        <h2>Student Information</h2>
+        <button onclick="loadStudent()">Load Student Information</button>
+        <div id="result">Click the button to load student information.</div>
+    </div>
 
-    <div id="result"></div>
+    <div class="section">
+        <h2>Greeting API</h2>
+        <input type="text" id="nameInput" placeholder="Enter your first name">
+        <br>
+        <button onclick="sayHello()">Say Hello</button>
+        <p id="greeting"></p>
+    </div>
 
-    <hr>
-
-    <h2>Greeting API</h2>
-
-    <input type="text" id="nameInput" placeholder="Enter your first name">
-    <button onclick="sayHello()">Say Hello</button>
-
-    <p id="greeting"></p>
+    <div class="section">
+        <h2>Custom Student API</h2>
+        <p>Retrieve your student profile using the custom API endpoint.</p>
+        <button onclick="loadCustomData()">Load Student Profile</button>
+        <div id="customResult">Click the button to load your profile.</div>
+    </div>
 
     <script>
-        function loadStudent() {
-            fetch('/student')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Failed to load student information');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    document.getElementById('result').innerHTML =
-                        '<p><b>Student ID:</b> ' + data.student_id + '</p>' +
-                        '<p><b>Name:</b> ' + data.name + '</p>' +
-                        '<p><b>Program:</b> ' + data.program + '</p>' +
-                        '<p><b>Year:</b> ' + data.year + '</p>' +
-                        '<p><b>Section:</b> ' + data.section + '</p>';
-                })
-                .catch(error => {
-                    document.getElementById('result').textContent =
-                        'Unable to retrieve student information.';
+        async function loadStudent() {
+            const result = document.getElementById('result');
+            result.textContent = 'Loading student information...';
+
+            try {
+                const response = await fetch('/student');
+
+                if (!response.ok) {
+                    throw new Error('Request failed');
+                }
+
+                const data = await response.json();
+
+                result.replaceChildren();
+
+                const fields = [
+                    ['Student ID', data.student_id],
+                    ['Name', data.name],
+                    ['Program', data.program],
+                    ['Year', data.year],
+                    ['Section', data.section]
+                ];
+
+                fields.forEach(([label, value]) => {
+                    const p = document.createElement('p');
+                    const strong = document.createElement('strong');
+
+                    strong.textContent = label + ': ';
+                    p.appendChild(strong);
+                    p.appendChild(
+                        document.createTextNode(value ?? 'Not available')
+                    );
+
+                    result.appendChild(p);
                 });
+            } catch (error) {
+                result.textContent = 'Unable to retrieve student information.';
+            }
         }
 
-        function sayHello() {
+        async function sayHello() {
             const name = document.getElementById('nameInput').value.trim();
+            const greeting = document.getElementById('greeting');
 
-            fetch('/hello?name=' + encodeURIComponent(name))
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Failed to retrieve greeting');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    document.getElementById('greeting').innerText = data.message;
-                })
-                .catch(error => {
-                    document.getElementById('greeting').innerText =
-                        'Unable to retrieve greeting.';
-                });
+            greeting.textContent = 'Loading greeting...';
+
+            try {
+                const response = await fetch(
+                    '/hello?name=' + encodeURIComponent(name)
+                );
+
+                if (!response.ok) {
+                    throw new Error('Request failed');
+                }
+
+                const data = await response.json();
+                greeting.textContent = data.message;
+            } catch (error) {
+                greeting.textContent = 'Unable to retrieve greeting.';
+            }
+        }
+
+        async function loadCustomData() {
+            const output = document.getElementById('customResult');
+            output.textContent = 'Loading student profile...';
+
+            try {
+                // Example endpoint: replace this with your actual
+                // Laboratory Activity 4 custom endpoint if different.
+                const response = await fetch('/student');
+
+                if (!response.ok) {
+                    throw new Error('Request failed');
+                }
+
+                const data = await response.json();
+
+                output.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                output.textContent = 'Unable to retrieve student profile.';
+            }
         }
     </script>
 </body>
