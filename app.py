@@ -17,7 +17,7 @@ def home():
     return render_template('index.html')
 
 
-# Get one sample student
+# Student Information API
 @app.route('/student')
 def get_student():
     return jsonify({
@@ -33,6 +33,7 @@ def get_student():
 @app.route('/hello')
 def say_hello():
     name = request.args.get('name', 'Student')
+
     return jsonify({
         "message": f"Hello, {name}!"
     })
@@ -45,7 +46,7 @@ def get_students():
 
     try:
         students = conn.execute(
-            'SELECT * FROM students'
+            'SELECT * FROM students ORDER BY id'
         ).fetchall()
     finally:
         conn.close()
@@ -67,9 +68,27 @@ def get_student_by_id(id):
         conn.close()
 
     if student is None:
-        return jsonify({"error": "Student not found"}), 404
+        return jsonify({
+            "error": "Student not found"
+        }), 404
 
     return jsonify(dict(student))
+
+
+# Get students by year level
+@app.route('/students/year/<int:year>')
+def get_students_by_year(year):
+    conn = get_db_connection()
+
+    try:
+        students = conn.execute(
+            'SELECT * FROM students WHERE year = ? ORDER BY id',
+            (year,)
+        ).fetchall()
+    finally:
+        conn.close()
+
+    return jsonify([dict(student) for student in students])
 
 
 if __name__ == '__main__':

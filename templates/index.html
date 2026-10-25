@@ -3,9 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Student API Interface</title>
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: Arial, sans-serif;
             background-color: #f3f4f6;
@@ -15,63 +20,68 @@
         }
 
         .container {
-            max-width: 680px;
+            max-width: 750px;
             margin: auto;
-        }
-
-        .card {
-            background-color: white;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 24px;
         }
 
         h1 {
             text-align: center;
             color: #1d4ed8;
+            margin-bottom: 25px;
         }
 
         h2 {
             color: #1f2937;
+            margin-top: 0;
+        }
+
+        .card {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 22px;
+            margin-bottom: 22px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
         }
 
         button {
             background-color: #2563eb;
             color: white;
             border: none;
-            padding: 10px 14px;
+            padding: 11px 15px;
             border-radius: 5px;
             cursor: pointer;
-            margin: 5px 0;
+            margin: 8px 0;
+            font-size: 14px;
         }
 
         button:hover {
             background-color: #1d4ed8;
         }
 
-        input {
-            box-sizing: border-box;
+        input,
+        select {
             width: 100%;
-            max-width: 360px;
-            padding: 10px;
-            margin-bottom: 5px;
+            max-width: 380px;
+            padding: 11px;
+            margin: 8px 0;
             border: 1px solid #ccc;
             border-radius: 5px;
+            font-size: 14px;
         }
 
         .result {
             background-color: #f9fafb;
             border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 12px;
-            margin-top: 14px;
+            border-radius: 6px;
+            padding: 14px;
+            margin-top: 12px;
             overflow-wrap: anywhere;
         }
 
         .student-record {
             border-bottom: 1px solid #ddd;
-            padding: 10px 0;
+            padding: 12px 0;
         }
 
         .student-record:last-child {
@@ -80,6 +90,23 @@
 
         .student-record p {
             margin: 6px 0;
+            line-height: 1.5;
+        }
+
+        .status {
+            color: #555;
+            font-size: 14px;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #ddd;
+            margin: 18px 0;
         }
     </style>
 </head>
@@ -90,8 +117,10 @@
         <h1>Student API Interface</h1>
 
         <!-- Student Information -->
-        <div class="card">
+        <section class="card">
             <h2>Student Information</h2>
+
+            <p>View the sample student profile.</p>
 
             <button onclick="loadStudent()">
                 Load Student Information
@@ -100,11 +129,14 @@
             <div class="result" id="studentInfo">
                 Click the button to load student information.
             </div>
-        </div>
+        </section>
 
         <!-- Greeting API -->
-        <div class="card">
+        <section class="card">
             <h2>Greeting API</h2>
+
+            <label for="nameInput">Enter your name:</label>
+            <br>
 
             <input
                 type="text"
@@ -120,14 +152,14 @@
             <div class="result" id="greeting">
                 Your greeting will appear here.
             </div>
-        </div>
+        </section>
 
         <!-- Custom Student API -->
-        <div class="card">
+        <section class="card">
             <h2>Custom Student API</h2>
 
             <p>
-                Retrieve your student profile using the custom API endpoint.
+                Retrieve your student profile using the existing API endpoint.
             </p>
 
             <button onclick="loadCustomStudent()">
@@ -137,153 +169,321 @@
             <div class="result" id="customStudent">
                 Your student profile will appear here.
             </div>
-        </div>
+        </section>
 
-        <!-- Students from Database -->
-        <div class="card">
-            <hr>
-
+        <!-- All Students from Database -->
+        <section class="card">
             <h2>Students from Database</h2>
+
+            <p>
+                Display all student records stored in SQLite.
+            </p>
 
             <button onclick="loadStudents()">Load Students</button>
 
-            <div id="studentList" class="result">
-                Click "Load Students" to retrieve database records.
+            <p class="status" id="databaseStatus"></p>
+
+            <div class="result" id="studentList">
+                Click Load Students to retrieve database records.
             </div>
-        </div>
+        </section>
+
+        <!-- Find One Student by Database ID -->
+        <section class="card">
+            <h2>Find Student by Database ID</h2>
+
+            <p>
+                Enter the database ID to retrieve one student's record.
+            </p>
+
+            <label for="studentIdInput">Database ID:</label>
+            <br>
+
+            <input
+                type="number"
+                id="studentIdInput"
+                min="1"
+                placeholder="Example: 1"
+            >
+
+            <br>
+
+            <button onclick="loadStudentById()">Find Student</button>
+
+            <div class="result" id="singleStudentResult">
+                Enter a database ID to find a student.
+            </div>
+        </section>
+
+        <!-- Search Students by Year Level -->
+        <section class="card">
+            <h2>Search Students by Year Level</h2>
+
+            <p>
+                Select a year level to retrieve matching records from SQLite.
+            </p>
+
+            <label for="yearInput">Select Year Level:</label>
+            <br>
+
+            <select id="yearInput">
+                <option value="1">Year 1</option>
+                <option value="2">Year 2</option>
+                <option value="3">Year 3</option>
+                <option value="4">Year 4</option>
+            </select>
+
+            <br>
+
+            <button onclick="loadStudentsByYear()">Find Students</button>
+
+            <div class="result" id="yearStudentList">
+                Select a year level and click Find Students.
+            </div>
+        </section>
 
     </div>
 
     <script>
-        // Load one sample student
-        function loadStudent() {
-            fetch('/student')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Unable to retrieve student information.');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    const output = document.getElementById('studentInfo');
-                    output.replaceChildren();
+        // Display one sample student
+        async function loadStudent() {
+            const output = document.getElementById("studentInfo");
 
-                    const fields = [
-                        ['Student ID', data.student_id],
-                        ['Name', data.name],
-                        ['Program', data.program],
-                        ['Year', data.year],
-                        ['Section', data.section]
-                    ];
+            output.textContent = "Loading student information...";
 
-                    fields.forEach(([label, value]) => {
-                        const p = document.createElement('p');
-                        const strong = document.createElement('strong');
+            try {
+                const response = await fetch("/student");
 
-                        strong.textContent = label + ': ';
-                        p.appendChild(strong);
-                        p.appendChild(document.createTextNode(value ?? ''));
+                if (!response.ok) {
+                    throw new Error("Unable to retrieve student information.");
+                }
 
-                        output.appendChild(p);
-                    });
-                })
-                .catch(error => {
-                    document.getElementById('studentInfo').textContent =
-                        'Unable to retrieve student information.';
+                const data = await response.json();
+
+                output.replaceChildren();
+
+                const fields = [
+                    ["Student ID", data.student_id],
+                    ["Name", data.name],
+                    ["Program", data.program],
+                    ["Year", data.year],
+                    ["Section", data.section]
+                ];
+
+                fields.forEach(([label, value]) => {
+                    const p = document.createElement("p");
+                    const strong = document.createElement("strong");
+
+                    strong.textContent = label + ": ";
+
+                    p.appendChild(strong);
+                    p.appendChild(
+                        document.createTextNode(value ?? "")
+                    );
+
+                    output.appendChild(p);
                 });
+            } catch (error) {
+                output.textContent = error.message;
+            }
         }
 
         // Greeting API
-        function sayHello() {
-            const name = document.getElementById('nameInput').value.trim();
+        async function sayHello() {
+            const name = document.getElementById("nameInput").value.trim();
+            const output = document.getElementById("greeting");
 
-            fetch('/hello?name=' + encodeURIComponent(name || 'Student'))
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Unable to retrieve greeting.');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    document.getElementById('greeting').textContent =
-                        data.message;
-                })
-                .catch(error => {
-                    document.getElementById('greeting').textContent =
-                        'Unable to retrieve greeting.';
-                });
+            output.textContent = "Loading greeting...";
+
+            try {
+                const response = await fetch(
+                    "/hello?name=" + encodeURIComponent(name || "Student")
+                );
+
+                if (!response.ok) {
+                    throw new Error("Unable to retrieve greeting.");
+                }
+
+                const data = await response.json();
+
+                output.textContent = data.message;
+            } catch (error) {
+                output.textContent = error.message;
+            }
         }
 
         // Custom Student API
-        function loadCustomStudent() {
-            fetch('/student')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Unable to retrieve student profile.');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    const output = document.getElementById('customStudent');
-                    const pre = document.createElement('pre');
+        async function loadCustomStudent() {
+            const output = document.getElementById("customStudent");
 
-                    pre.textContent = JSON.stringify(data, null, 2);
-                    output.replaceChildren(pre);
-                })
-                .catch(error => {
-                    document.getElementById('customStudent').textContent =
-                        'Unable to retrieve student profile.';
-                });
+            output.textContent = "Loading student profile...";
+
+            try {
+                const response = await fetch("/student");
+
+                if (!response.ok) {
+                    throw new Error("Unable to retrieve student profile.");
+                }
+
+                const data = await response.json();
+                const pre = document.createElement("pre");
+
+                pre.textContent = JSON.stringify(data, null, 2);
+                output.replaceChildren(pre);
+            } catch (error) {
+                output.textContent = error.message;
+            }
         }
 
-        // Load all student records from the SQLite database
-        function loadStudents() {
-            const studentList = document.getElementById('studentList');
+        // Display all students from SQLite
+        async function loadStudents() {
+            const output = document.getElementById("studentList");
+            const status = document.getElementById("databaseStatus");
 
-            studentList.textContent = 'Loading student records...';
+            output.textContent = "Loading student records...";
+            status.textContent = "";
 
-            fetch('/students')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Unable to retrieve student records.');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.length === 0) {
-                        studentList.textContent =
-                            'No student records found in the database.';
-                        return;
-                    }
+            try {
+                const response = await fetch("/students");
 
-                    studentList.replaceChildren();
+                if (!response.ok) {
+                    throw new Error("Unable to retrieve student records.");
+                }
 
-                    data.forEach(student => {
-                        const record = document.createElement('div');
-                        record.className = 'student-record';
+                const students = await response.json();
 
-                        const p = document.createElement('p');
-                        const strong = document.createElement('strong');
+                output.replaceChildren();
 
-                        strong.textContent = student.student_id;
+                if (students.length === 0) {
+                    output.textContent =
+                        "No student records found in the database.";
+
+                    status.textContent = "0 records found.";
+                    return;
+                }
+
+                students.forEach(student => {
+                    const record = document.createElement("div");
+                    record.className = "student-record";
+
+                    const fields = [
+                        ["Database ID", student.id],
+                        ["Student ID", student.student_id],
+                        ["Name", student.name],
+                        ["Program", student.program],
+                        ["Year", student.year],
+                        ["Section", student.section]
+                    ];
+
+                    fields.forEach(([label, value]) => {
+                        const p = document.createElement("p");
+                        const strong = document.createElement("strong");
+
+                        strong.textContent = label + ": ";
+
                         p.appendChild(strong);
                         p.appendChild(
-                            document.createTextNode(
-                                ' - ' + student.name +
-                                ' | ' + student.program +
-                                ' | Year ' + student.year +
-                                ' | Section ' + student.section
-                            )
+                            document.createTextNode(value ?? "")
                         );
 
                         record.appendChild(p);
-                        studentList.appendChild(record);
                     });
-                })
-                .catch(error => {
-                    studentList.textContent =
-                        'Unable to retrieve student records.';
+
+                    output.appendChild(record);
                 });
+
+                status.textContent =
+                    students.length + " student record(s) loaded successfully.";
+            } catch (error) {
+                output.textContent = error.message;
+                status.textContent = "Could not retrieve database records.";
+            }
+        }
+
+        // Find one student by database ID
+        async function loadStudentById() {
+            const id = document.getElementById("studentIdInput").value.trim();
+            const output = document.getElementById("singleStudentResult");
+
+            if (!id || !Number.isInteger(Number(id)) || Number(id) < 1) {
+                output.textContent = "Please enter a valid database ID.";
+                return;
+            }
+
+            output.textContent = "Searching...";
+
+            try {
+                const response = await fetch("/students/" + id);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Student not found.");
+                }
+
+                const pre = document.createElement("pre");
+
+                pre.textContent = JSON.stringify(data, null, 2);
+                output.replaceChildren(pre);
+            } catch (error) {
+                output.textContent = error.message;
+            }
+        }
+
+        // Find students by year level
+        async function loadStudentsByYear() {
+            const year = document.getElementById("yearInput").value;
+            const output = document.getElementById("yearStudentList");
+
+            output.textContent = "Loading students...";
+
+            try {
+                const response = await fetch("/students/year/" + year);
+
+                if (!response.ok) {
+                    throw new Error("Unable to retrieve student records.");
+                }
+
+                const students = await response.json();
+
+                output.replaceChildren();
+
+                if (students.length === 0) {
+                    output.textContent =
+                        "No students found in Year " + year + ".";
+                    return;
+                }
+
+                students.forEach(student => {
+                    const record = document.createElement("div");
+                    record.className = "student-record";
+
+                    const fields = [
+                        ["Student ID", student.student_id],
+                        ["Name", student.name],
+                        ["Program", student.program],
+                        ["Year", student.year],
+                        ["Section", student.section]
+                    ];
+
+                    fields.forEach(([label, value]) => {
+                        const p = document.createElement("p");
+                        const strong = document.createElement("strong");
+
+                        strong.textContent = label + ": ";
+
+                        p.appendChild(strong);
+                        p.appendChild(
+                            document.createTextNode(value ?? "")
+                        );
+
+                        record.appendChild(p);
+                    });
+
+                    output.appendChild(record);
+                });
+            } catch (error) {
+                output.textContent = error.message;
+            }
         }
     </script>
 </body>
